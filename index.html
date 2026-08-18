@@ -8,7 +8,6 @@
   html, body { margin:0; height:100%; background:#010103; overflow:hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
   canvas { display:block; width: 100vw; height: 100vh; }
 
-  /* --- Reproductor Adaptable --- */
   .player {
     position: fixed;
     bottom: 25px;
@@ -94,7 +93,7 @@
   <div class="time" id="time">0:00 / 0:00</div>
 </div>
 
-<!-- Audio simplificado apuntando a cancion.mp3 -->
+
 <audio id="audio" loop>
   <source src="cancion.mp3" type="audio/mpeg">
 </audio>
@@ -103,7 +102,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ================= CONFIGURACIÓN AUDIO =================
+
 const audio=document.getElementById('audio'),playBtn=document.getElementById('play'),progress=document.getElementById('progress'),progressBar=document.getElementById('progress-bar'),timeDisplay=document.getElementById('time');
 let isPlaying=false;
 playBtn.addEventListener('click',async()=>{if(isPlaying){audio.pause();playBtn.textContent='▶';}else{await audio.play();playBtn.textContent='II';}isPlaying=!isPlaying;});
@@ -111,14 +110,12 @@ function formatTime(s){if(!isFinite(s))return'0:00';const m=Math.floor(s/60),sec
 audio.addEventListener('timeupdate',()=>{const p=(audio.currentTime/audio.duration)*100;progressBar.style.width=(p||0)+'%';timeDisplay.textContent=formatTime(audio.currentTime)+' / '+formatTime(audio.duration);});
 progress.addEventListener('click',e=>{const r=progress.getBoundingClientRect(),p=(e.clientX-r.left)/r.width;if(isFinite(audio.duration))audio.currentTime=p*audio.duration;});
 
-// ================= ESCENA 3D =================
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Función para crear textura de estrella con brillo
 function createStarTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
@@ -134,7 +131,6 @@ function createStarTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-// Fondo de estrellas masivo
 const starTexture = createStarTexture();
 const starGeometry = new THREE.BufferGeometry();
 const starPos = [];
@@ -157,17 +153,14 @@ const starMaterial = new THREE.PointsMaterial({
 const stars = new THREE.Points(starGeometry, starMaterial);
 scene.add(stars);
 
-// Función para crear una textura de la Luna generada por código
 function createMoonTexture() {
     const c = document.createElement('canvas'); 
     c.width = 1024; c.height = 512;
     const ctx = c.getContext('2d');
     
-    // Color base de la luna
     ctx.fillStyle = '#d0d4dc'; 
     ctx.fillRect(0, 0, 1024, 512);
     
-    // Cráteres y textura
     for(let i=0; i<3000; i++) {
         const x = Math.random() * 1024;
         const y = Math.random() * 512;
@@ -182,7 +175,6 @@ function createMoonTexture() {
     return new THREE.CanvasTexture(c);
 }
 
-// Crear la Luna en 3D
 const planetGeom = new THREE.SphereGeometry(50, 64, 64);
 const planetMat = new THREE.MeshStandardMaterial({ 
     map: createMoonTexture(), 
@@ -190,19 +182,16 @@ const planetMat = new THREE.MeshStandardMaterial({
     metalness: 0.1
 });
 const moon = new THREE.Mesh(planetGeom, planetMat);
-moon.rotation.z = 0.2; // Inclinación ligera
+moon.rotation.z = 0.2;
 scene.add(moon);
 
-// Luces
 const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
 sunLight.position.set(150, 100, 150);
 scene.add(sunLight);
 
-// Luz azulada para simular el brillo del espacio sobre la luna
 const ambientLight = new THREE.AmbientLight(0x223344, 0.6);
 scene.add(ambientLight);
 
-// Lista de Palabras
 const words = [
     'Para Joycita 🌙', 'Te amo ❤️', 'Eres mi vida ✨', 'Juntos por siempre 🌹', 'Contigo siempre 💑', 
     'Joycita y yo ♾️', 'Corazón mío 💓', 'Amor eterno 💍', 'Eres magia ✨', 'Mi mundo entero 🌍', 
@@ -255,7 +244,6 @@ words.forEach((w, i) => {
     wordGroup.add(sprite);
 });
 
-// Interacción
 let rotY = 0, rotX = 0, targetDist = window.innerWidth < 600 ? 400 : 360, curDist = targetDist;
 let isDragging = false, lastX, lastY;
 
@@ -275,18 +263,15 @@ window.addEventListener('touchmove', e => onPointerMove(e.touches[0].clientX, e.
 window.addEventListener('touchend', () => isDragging = false);
 window.addEventListener('wheel', e => { targetDist = Math.max(180, Math.min(1000, targetDist + e.deltaY * 0.5)); }, { passive: true });
 
-// Animación
 function animate() {
     requestAnimationFrame(animate);
     const time = Date.now() * 0.001;
     
-    moon.rotation.y += 0.002; // La luna gira un poco más lento
-    
-    // EFECTO DE VIAJE: Mover estrellas hacia la cámara y rotarlas
+    moon.rotation.y += 0.002; 
+  
     stars.rotation.y += 0.0008;
     stars.rotation.x += 0.0004;
     
-    // Mover ligeramente el objeto estrellas para simular desplazamiento espacial
     stars.position.z = Math.sin(time * 0.1) * 50; 
     
     starMaterial.opacity = 0.85 + Math.sin(time * 2.5) * 0.15;
